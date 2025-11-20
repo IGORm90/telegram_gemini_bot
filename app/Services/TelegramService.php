@@ -47,4 +47,11 @@ class TelegramService
 
         return $this->httpService->post($url, $payload);
     }
+
+    public function sendErrorMessage(int|string $chatId, array $options = []): Response
+    {
+        $errorText = "Произошла ошибка при обработке запроса!";
+        
+        return $this->sendMessage($chatId, $errorText, $options);
+    }
 }

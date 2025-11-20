@@ -2,14 +2,24 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Log;
-
 class MessageHandlerService
 {
+    private TelegramService $telegramService;
+
+    public function __construct()
+    {
+        $this->telegramService = new TelegramService();
+    }
+
     public function handleMessage(array $requestData): bool
     {
-        $chatId = $requestData['message']['chat']['id'];
-		$userQuestion = $requestData['message']['text'];
+        $chatId = $requestData['message']['chat']['id'] ?? null;
+		$userQuestion = $requestData['message']['text'] ?? null;
+
+		if ($chatId === null || $userQuestion === null) {
+			$this->telegramService->sendErrorMessage($chatId);
+            return false;
+		}
 
 		$contentsService = new ContentsService();
         $geminiService = new GeminiService();
@@ -20,11 +30,15 @@ class MessageHandlerService
 		$gptResponseArray = $gptResponse->json();
 
 		$contentsService->addGptResponseToContext($chatId, $userQuestion, $gptResponseArray);
-		Log::info('gptResponseArray', ['response' => $gptResponseArray]);
 
-		$telegramService = new TelegramService();
-        $text = $gptResponseArray['candidates'][0]['content']['parts'][0]['text'];
-		$telegramService->sendMessage($chatId, $text);
+        $text = $gptResponseArray['candidates'][0]['content']['parts'][0]['text'] ?? null;
+
+		if ($text === null) {
+			$this->telegramService->sendErrorMessage($chatId);
+            return false;
+		}
+
+		$this->telegramService->sendMessage($chatId, $text);
 
         return true;
     }

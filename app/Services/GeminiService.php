@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Arr;
 use RuntimeException;
 
 class GeminiService

@@ -19,7 +19,6 @@ class UserContentRepository
             return $userContent->save();
         }
         
-        // Если записи нет, создаем новую
         $userContent = new UserContent();
         $userContent->chat_id = $chatId;
         $userContent->context = $context;
