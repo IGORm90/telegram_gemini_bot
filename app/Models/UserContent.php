@@ -7,4 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class UserContent extends Model
 {
     protected $table = 'user_context';
+
+    protected $casts = [
+        'context' => 'array',
+    ];
 }

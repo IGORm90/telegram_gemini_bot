@@ -23,12 +23,12 @@ class ContentsService
             return null;
         }
         
-        $updatedAt = $userContent['updated_at'];
+        $updatedAt = $userContent->updated_at;
         if ($updatedAt && Carbon::now()->subHour()->isAfter($updatedAt)) {
             return ['contents' => []];
         }
         
-        return $userContent['context'];
+        return $userContent->context;
     }
 
     public function updateContextByChatId(int $chatId, array $context): bool

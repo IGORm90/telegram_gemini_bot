@@ -13,6 +13,7 @@ services:
       - lumen-net
     depends_on:
       - redis
+      - postgres
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
@@ -21,6 +22,12 @@ services:
       - QUEUE_CONNECTION=redis
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - DB_CONNECTION=pgsql
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=lumen
+      - DB_USERNAME=lumen
+      - DB_PASSWORD=lumen
     ports:
       - "9000:9000"
 
@@ -47,6 +54,24 @@ services:
     networks:
       - lumen-net
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: lumen-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=lumen
+      - POSTGRES_USER=lumen
+      - POSTGRES_PASSWORD=lumen
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lumen-net
+
 networks:
   lumen-net:
     driver: bridge
+
+volumes:
+  postgres_data:

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\ContentsService;
 use App\Services\MessageHandlerService;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Repositories\ValidatorsRepository;
 use Illuminate\Validation\ValidationException;
 use Laravel\Lumen\Routing\Controller as BaseController;
@@ -21,14 +22,26 @@ class MainController extends BaseController
 
     public function telegramWebhook(Request $request)
     {
-        $requestData = $request->json()->all();
-		$validatorRequest = Validator::make($requestData, ValidatorsRepository::getTelegramRequestRules());
-		if ($validatorRequest->fails()) {
-			throw new ValidationException($validatorRequest);
-		}
+        try {
+            $requestData = $request->json()->all();
+            Log::info('gptResponseArray', ['response' => $requestData]);
 
-		$this->messageHandlerService->handleMessage($requestData);
+            $validatorRequest = Validator::make($requestData, ValidatorsRepository::getTelegramRequestRules());
+            if ($validatorRequest->fails()) {
+                throw new ValidationException($validatorRequest);
+            }
 
-        return response()->json(['message' => 'Message handled successfully']);
+            $this->messageHandlerService->handleMessage($requestData);
+
+            return response()->json(['message' => 'Message handled successfully']);
+        } catch (\Exception $e) {
+            Log::error('Error in telegramWebhook', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->json()->all() ?? null
+            ]);
+
+            return response()->json(['error' => 'An error occurred while processing the request'], 500);
+        }
     }
 }

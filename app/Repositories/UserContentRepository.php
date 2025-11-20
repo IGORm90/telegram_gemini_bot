@@ -6,10 +6,9 @@ use App\Models\UserContent;
 
 class UserContentRepository
 {
-    public function getUserContent(int $chatId): ?array
+    public function getUserContent(int $chatId): ?UserContent
     {
-        $userContent = UserContent::where('chat_id', $chatId)->first();
-        return $userContent ? $userContent->context : null;
+        return UserContent::where('chat_id', $chatId)->first();
     }
 
     public function updateContextByChatId(int $chatId, $context): bool
